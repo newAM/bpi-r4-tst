@@ -1,4 +1,6 @@
 .direnv
+.ptest_cache
 .ropeproject
+.ruff_cache
 __pycache__
 settings.json
