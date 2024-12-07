@@ -11,10 +11,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-with open("/run/secrets/ha-token", "r") as f:
-    ha_token = f.read()
-
-
 @contextlib.contextmanager
 def disable_stdin_capture():
     with pytest.MonkeyPatch.context() as monkeypatch:
@@ -28,16 +24,18 @@ class BpiR4:
         wan_ip: str,
         wan_ssh_port: int,
         homeassistant_url: str,
+        homeassistant_token: str,
         switch_entity_id: str,
     ):
         self.wan_ip = wan_ip
         self.wan_ssh_port = wan_ssh_port
         self.homeassistant_url = homeassistant_url
+        self.homeassistant_token = homeassistant_token
         self.switch_entity_id = switch_entity_id
 
     def _hass_headers(self) -> dict:
         return {
-            "Authorization": f"Bearer {ha_token}",
+            "Authorization": f"Bearer {self.homeassistant_token}",
             "Content-Type": "application/json",
         }
 
@@ -93,10 +91,14 @@ def bpi():
     with open("settings.json", "r") as f:
         settings = json.load(f)
 
+    with open(settings["homeassistant"]["token_file"], "r") as f:
+        homeassistant_token = f.read()
+
     return BpiR4(
         wan_ip=settings["bpi_r4"]["wan_ip"],
         wan_ssh_port=settings["bpi_r4"]["wan_ssh_port"],
         homeassistant_url=settings["homeassistant"]["url"],
+        homeassistant_token=homeassistant_token,
         switch_entity_id=settings["homeassistant"]["switch_entity_id"],
     )
 
