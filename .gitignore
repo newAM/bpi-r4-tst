@@ -1,0 +1,4 @@
+.direnv
+.ropeproject
+__pycache__
+settings.json
